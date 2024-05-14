@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVVM响应式原理</title>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script> -->
+</head>
+<body>
+    <div id="app">
+        <h2>{{person.name}}--{{person.age}}</h2>
+        <h3>{{person.fav}}</h3>
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+        </ul>
+        <div>
+            <p>{{msg}}</p>
+        </div>
+        <div v-text="text"></div>
+        <div v-html="htmlStr"></div>
+        <input type="text" v-model="msg">
+    </div>
+    <script src="Tvue.js"></script>
+    <script>
+        const vm = new Tvue({
+            el:'#app',
+            data:{
+                text:'hello MVVM',
+                htmlStr:'hello MVVM',
+                msg:'msg',
+                person:{
+                    name:'xxx',
+                    age:18,
+                    fav:'梅子'
+                }
+            }
+        })
+    </script>
+</body>
+</html>
