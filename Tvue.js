@@ -28,7 +28,10 @@ const compileUtil={
     this.updater.modelUpdater(node,value);
   },
   on(node,expr,vm,eventName){
-
+    // console.log(vm);
+    const fn = vm.$options.methods && vm.$options.methods[expr];
+    // console.log(fn);
+    node.addEventListener(eventName,fn.bind(vm),false)
   },
   updater:{
     textUpdater(node,value){
@@ -97,6 +100,12 @@ class Compile {
         compileUtil[dirName](node,value,this.vm,eventName);
         // 删除标签上的指令
         node.removeAttribute('v-'+directive);
+      }else if(this.isEventName(name)){
+        const [,eventName] = name.split('@'); //对@click分割处理,
+        // 更新数据 数据驱动视图
+        compileUtil['on'](node,value,this.vm,eventName);
+        // 删除标签上的指令
+        node.removeAttribute('@'+eventName);
       }
     })
   }
@@ -121,6 +130,9 @@ class Compile {
   }
   isDireative(attrName){
     return attrName.startsWith('v-');
+  }
+  isEventName(attrName){
+    return attrName.startsWith('@')
   }
   isElementNode(node){
     // nodeType === 1 则当前节点是元素节点对象
