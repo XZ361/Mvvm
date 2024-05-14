@@ -6,7 +6,17 @@ const compileUtil={
     },vm.$data)
   },
   text(node,expr,vm){
-    const value = this.getVal(expr,vm);
+    let value;
+    // {{person.name}}
+    if(expr.indexOf('{{')!==-1){
+      value = expr.replace(/\{\{(.+?)\}\}/g,(...args)=>{
+        // console.log(args);
+        return this.getVal(args[1],vm)
+      })
+    }else{
+    // v-text
+      value = this.getVal(expr,vm);
+    }
     this.updater.textUpdater(node,value);
   },
   html(node,expr,vm){
@@ -83,12 +93,22 @@ class Compile {
       if(this.isDireative(name)){
         const [,directive] = name.split('-'); //text html model on:click 
         const [dirName,eventName] = directive.split(':'); //对on:click分割处理,text html model on
+        // 更新数据 数据驱动视图
         compileUtil[dirName](node,value,this.vm,eventName);
+        // 删除标签上的指令
+        node.removeAttribute('v-'+directive);
       }
     })
   }
   compileText(node){
-
+    // {{}}
+    // console.log(node.textContent);
+    const content = node.textContent;
+    // 正则匹配双大括号
+    if(/\{\{(.+?)\}\}/g.test(content)){
+      // console.log(content);
+      compileUtil['text'](node,content,this.vm);
+    }
   }
   node2Fragment(el){
     // 创建文档碎片
