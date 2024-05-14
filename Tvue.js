@@ -14,7 +14,7 @@ const compileUtil={
         return this.getVal(args[1],vm)
       })
     }else{
-    // v-text
+    // v-text 
       value = this.getVal(expr,vm);
     }
     this.updater.textUpdater(node,value);
@@ -146,7 +146,7 @@ class Tvue {
     this.$options = options; 
     if(this.$el){
       // 1实现一个数据观察者Observer
-
+      new Observer(this.$data)
       // 2:实现一个模版解析器Compile
       new Compile(this.$el,this)
     }
