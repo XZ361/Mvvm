@@ -19,23 +19,37 @@
             <p>{{msg}}</p>
         </div>
         <div v-text="text"></div>
+        <div v-text="person.name"></div>
         <div v-html="htmlStr"></div>
+        <div v-html="person.age"></div>
         <input type="text" v-model="msg">
+        <input type="text" v-model="person.fav">
+        <button v-on:click="handleClick">点击</button>
+        <button @click="handleClick2">点击2</button>
     </div>
     <script src="Tvue.js"></script>
     <script>
         const vm = new Tvue({
             el:'#app',
             data:{
-                text:'hello MVVM',
-                htmlStr:'hello MVVM',
-                msg:'msg',
+                text:'hello MVVM123',
+                htmlStr:'hello MVVM123',
+                msg:'这是MVVM数据',
                 person:{
                     name:'xxx',
                     age:18,
                     fav:'梅子'
                 }
-            }
+            },
+            methods: {
+                handleClick() {
+                    console.log('123');
+                    // console.log(this);
+                },
+                handleClick2(){
+                    console.log('123456');
+                }
+            },
         })
     </script>
 </body>

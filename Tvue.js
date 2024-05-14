@@ -1,3 +1,51 @@
+const compileUtil={
+  getVal(expr,vm){
+    return expr.split('.').reduce((data,currentValue)=>{
+      // console.log(currentValue);
+      return data[currentValue];
+    },vm.$data)
+  },
+  text(node,expr,vm){
+    let value;
+    // {{person.name}}
+    if(expr.indexOf('{{')!==-1){
+      value = expr.replace(/\{\{(.+?)\}\}/g,(...args)=>{
+        // console.log(args);
+        return this.getVal(args[1],vm)
+      })
+    }else{
+    // v-text
+      value = this.getVal(expr,vm);
+    }
+    this.updater.textUpdater(node,value);
+  },
+  html(node,expr,vm){
+    const value = this.getVal(expr,vm);
+    this.updater.htmlUpdater(node,value);
+  },
+  model(node,expr,vm){
+    const value = this.getVal(expr,vm);
+    this.updater.modelUpdater(node,value);
+  },
+  on(node,expr,vm,eventName){
+    // console.log(vm);
+    const fn = vm.$options.methods && vm.$options.methods[expr];
+    // console.log(fn);
+    node.addEventListener(eventName,fn.bind(vm),false)
+  },
+  updater:{
+    textUpdater(node,value){
+      node.textContent = value;
+    },
+    htmlUpdater(node,value){
+      node.innerHTML = value;
+    },
+    modelUpdater(node,value){
+      // console.log(value);
+      node.value = value;
+    }
+  }
+}
 class Compile {
   constructor(el,vm) {
     // 判断当前el是否是一个元素节点对象,满足则赋值，否则获取节点对象
@@ -35,9 +83,41 @@ class Compile {
   }
   compileElement(node){
     // console.log(node);
+    // <div v-text="text"></div>
+    // <div v-html="htmlStr"></div>
+    // <input type="text" v-model="msg">
+
+    const attributes = node.attributes;
+    [...attributes].forEach(attr=>{
+      // console.log(attr);
+      const {name,value} = attr
+      // console.log(name,value);
+      // 判断当前name是否是一个vue指令,v-text v-html v-model v-on:click 
+      if(this.isDireative(name)){
+        const [,directive] = name.split('-'); //text html model on:click 
+        const [dirName,eventName] = directive.split(':'); //对on:click分割处理,text html model on
+        // 更新数据 数据驱动视图
+        compileUtil[dirName](node,value,this.vm,eventName);
+        // 删除标签上的指令
+        node.removeAttribute('v-'+directive);
+      }else if(this.isEventName(name)){
+        const [,eventName] = name.split('@'); //对@click分割处理,
+        // 更新数据 数据驱动视图
+        compileUtil['on'](node,value,this.vm,eventName);
+        // 删除标签上的指令
+        node.removeAttribute('@'+eventName);
+      }
+    })
   }
   compileText(node){
-
+    // {{}}
+    // console.log(node.textContent);
+    const content = node.textContent;
+    // 正则匹配双大括号
+    if(/\{\{(.+?)\}\}/g.test(content)){
+      // console.log(content);
+      compileUtil['text'](node,content,this.vm);
+    }
   }
   node2Fragment(el){
     // 创建文档碎片
@@ -47,6 +127,12 @@ class Compile {
       f.appendChild(firstChild)
     }
     return f
+  }
+  isDireative(attrName){
+    return attrName.startsWith('v-');
+  }
+  isEventName(attrName){
+    return attrName.startsWith('@')
   }
   isElementNode(node){
     // nodeType === 1 则当前节点是元素节点对象
