@@ -1,3 +1,38 @@
+const compileUtil={
+  getVal(expr,vm){
+    return expr.split('.').reduce((data,currentValue)=>{
+      // console.log(currentValue);
+      return data[currentValue];
+    },vm.$data)
+  },
+  text(node,expr,vm){
+    const value = this.getVal(expr,vm);
+    this.updater.textUpdater(node,value);
+  },
+  html(node,expr,vm){
+    const value = this.getVal(expr,vm);
+    this.updater.htmlUpdater(node,value);
+  },
+  model(node,expr,vm){
+    const value = this.getVal(expr,vm);
+    this.updater.modelUpdater(node,value);
+  },
+  on(node,expr,vm,eventName){
+
+  },
+  updater:{
+    textUpdater(node,value){
+      node.textContent = value;
+    },
+    htmlUpdater(node,value){
+      node.innerHTML = value;
+    },
+    modelUpdater(node,value){
+      // console.log(value);
+      node.value = value;
+    }
+  }
+}
 class Compile {
   constructor(el,vm) {
     // 判断当前el是否是一个元素节点对象,满足则赋值，否则获取节点对象
@@ -35,6 +70,22 @@ class Compile {
   }
   compileElement(node){
     // console.log(node);
+    // <div v-text="text"></div>
+    // <div v-html="htmlStr"></div>
+    // <input type="text" v-model="msg">
+
+    const attributes = node.attributes;
+    [...attributes].forEach(attr=>{
+      // console.log(attr);
+      const {name,value} = attr
+      // console.log(name,value);
+      // 判断当前name是否是一个vue指令,v-text v-html v-model v-on:click 
+      if(this.isDireative(name)){
+        const [,directive] = name.split('-'); //text html model on:click 
+        const [dirName,eventName] = directive.split(':'); //对on:click分割处理,text html model on
+        compileUtil[dirName](node,value,this.vm,eventName);
+      }
+    })
   }
   compileText(node){
 
@@ -47,6 +98,9 @@ class Compile {
       f.appendChild(firstChild)
     }
     return f
+  }
+  isDireative(attrName){
+    return attrName.startsWith('v-');
   }
   isElementNode(node){
     // nodeType === 1 则当前节点是元素节点对象

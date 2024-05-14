@@ -19,17 +19,20 @@
             <p>{{msg}}</p>
         </div>
         <div v-text="text"></div>
+        <div v-text="person.name"></div>
         <div v-html="htmlStr"></div>
+        <div v-html="person.age"></div>
         <input type="text" v-model="msg">
+        <input type="text" v-model="person.fav">
     </div>
     <script src="Tvue.js"></script>
     <script>
         const vm = new Tvue({
             el:'#app',
             data:{
-                text:'hello MVVM',
-                htmlStr:'hello MVVM',
-                msg:'msg',
+                text:'hello MVVM123',
+                htmlStr:'hello MVVM123',
+                msg:'这是MVVM数据',
                 person:{
                     name:'xxx',
                     age:18,
