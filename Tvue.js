@@ -179,6 +179,20 @@ class Tvue {
       new Observer(this.$data)
       // 2:实现一个模版解析器Compile
       new Compile(this.$el,this)
+      // 3.实现属性代理proxy
+      this.proxyData(this.$data)
+    }
+  }
+  proxyData(data){
+    for(const key in data){
+      Object.defineProperty(this,key,{
+        get(){
+          return data[key]
+        },
+        set(newVal){
+          data[key]=newVal;
+        }
+      })
     }
   }
 }
