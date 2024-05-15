@@ -5,26 +5,44 @@ const compileUtil={
       return data[currentValue];
     },vm.$data)
   },
+  getContentVal(expr,vm){
+    return expr.replace(/\{\{(.+?)\}\}/g,(...args)=>{
+      // console.log(args);
+      return this.getVal(args[1],vm)
+    })
+  },
   text(node,expr,vm){
     let value;
     // {{person.name}}
     if(expr.indexOf('{{')!==-1){
       value = expr.replace(/\{\{(.+?)\}\}/g,(...args)=>{
         // console.log(args);
+        new Watcher(args[1],vm,()=>{
+          this.updater.textUpdater(node,this.getContentVal(expr,vm));
+        })
         return this.getVal(args[1],vm)
       })
     }else{
     // v-text 
       value = this.getVal(expr,vm);
+      new Watcher(expr,vm,(newVal)=>{
+        this.updater.textUpdater(node,newVal);
+      })
     }
     this.updater.textUpdater(node,value);
   },
   html(node,expr,vm){
     const value = this.getVal(expr,vm);
+    new Watcher(expr,vm,(newVal)=>{
+      this.updater.htmlUpdater(node,newVal);
+    })
     this.updater.htmlUpdater(node,value);
   },
   model(node,expr,vm){
     const value = this.getVal(expr,vm);
+    new Watcher(expr,vm,(newVal)=>{
+      this.updater.modelUpdater(node,newVal);
+    })
     this.updater.modelUpdater(node,value);
   },
   on(node,expr,vm,eventName){

@@ -18,8 +18,10 @@
         <div>
             <p>{{msg}}</p>
         </div>
+        <hr>
         <div v-text="text"></div>
         <div v-text="person.name"></div>
+        <hr>
         <div v-html="htmlStr"></div>
         <div v-html="person.age"></div>
         <input type="text" v-model="msg">
@@ -49,6 +51,7 @@
                 },
                 handleClick2(){
                     console.log('123456');
+                    this.$data.person.age=22;
                 }
             },
         })

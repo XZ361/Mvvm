@@ -4,7 +4,7 @@ class Watcher{
     this.expr = expr;
     this.cb = cb;
     // 先将旧值保存起来
-    this.oldVal = getOldVal();
+    this.oldVal = this.getOldVal();
   }
   getOldVal(){
     Dep.target = this;//将watcher和Dep做关联
@@ -31,6 +31,7 @@ class Dep{
     this.subs.push(watcher)
   }
   notify(){
+    // console.log('观察者',this.subs);
     // 遍历通知每个Watcher,执行更新回调
     this.subs.forEach(sub=>sub.update())
   }
