@@ -53,6 +53,7 @@ class Observer{
       // 劫持嵌套数据
       this.observe(value);
       const dep = new Dep();
+      // 劫持并监听所有的属性
       Object.defineProperty(obj,key,{
         enumerable:true,
         configurable:false,

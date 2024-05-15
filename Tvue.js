@@ -5,6 +5,12 @@ const compileUtil={
       return data[currentValue];
     },vm.$data)
   },
+  setVal(expr,vm,inputVal){
+    return expr.split('.').reduce((data,currentValue)=>{
+      // console.log(currentValue);
+      data[currentValue] = inputVal;
+    },vm.$data)
+  },
   getContentVal(expr,vm){
     return expr.replace(/\{\{(.+?)\}\}/g,(...args)=>{
       // console.log(args);
@@ -33,6 +39,7 @@ const compileUtil={
   },
   html(node,expr,vm){
     const value = this.getVal(expr,vm);
+    // 绑定观察者，将来数据发生变化，触发这里的回调，进行更新
     new Watcher(expr,vm,(newVal)=>{
       this.updater.htmlUpdater(node,newVal);
     })
@@ -40,8 +47,13 @@ const compileUtil={
   },
   model(node,expr,vm){
     const value = this.getVal(expr,vm);
+    // 绑定更新函数-》数据驱动视图
     new Watcher(expr,vm,(newVal)=>{
       this.updater.modelUpdater(node,newVal);
+    })
+    // 视图变化，导致数据更新
+    node.addEventListener('input',(e)=>{
+      this.setVal(expr,vm,e.target.value);
     })
     this.updater.modelUpdater(node,value);
   },
